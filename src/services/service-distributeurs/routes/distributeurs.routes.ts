@@ -53,4 +53,13 @@ distributeursRouter.put("/:id",  authorize(['SADM', 'ADM', 'AM']), distributeurs
 distributeursRouter.delete("/:id", authorize(['SADM']), distributeursController.deleteById)
 
 
+/**
+@route GET distributeurs/:id/boissons
+@desc get list of beverages by distributeur
+@access all
+*/
+
+distributeursRouter.get("/:id/boissons", distributeursController.getBoissonsByID)
+
+
 export default distributeursRouter 

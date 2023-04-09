@@ -1,6 +1,8 @@
+import distributeur from "../../../models/distributeur";
 import models from "../../../models/sequelize";
 
   type DistributeurModel = typeof models.distributeur
+  type BoissonModel = typeof models.boisson
 
 const distributeursService = {
     getByID : async(id : string) : Promise<DistributeurModel> => {
@@ -41,6 +43,17 @@ const distributeursService = {
 
     delete :  async(distributeur : DistributeurModel) => {
         await distributeur.destroy();
+    },
+
+    getBoissonsByID :async (id : string) => {
+        try {
+            const boissons : BoissonModel [] = models.boisson.findAll({where : {numero_serie_distributeur : id}})
+            return boissons
+        } catch (err) {
+            throw err
+        }
+        
+
     }
 }
 

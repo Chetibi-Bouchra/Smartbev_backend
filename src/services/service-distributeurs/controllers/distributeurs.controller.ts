@@ -92,6 +92,15 @@ const distributeursController = {
             res.status(500).send(error.message)
         }
     },
+
+    getBoissonsByID : async (req : Request, res : Response) => {
+        try {
+            const boissons  = await distributeursService.getBoissonsByID(req.params.id)
+            res.status(201).json(boissons)
+        } catch (err : any){
+            res.status(500).send(err.message)
+        }
+    }
 }
 
 export default distributeursController
