@@ -1,46 +1,45 @@
-import dotenv from 'dotenv';
-import axios, { AxiosResponse } from 'axios';
 import distributeursService from './distributeurs.service';
 
 import models from "../../../models/sequelize";
+import { error } from 'console';
 
   type DistributeurModel = typeof models.distributeur
+  type UtilisateurModel = typeof models.utilisateur
 
-dotenv.config()
+
 
 const distributeursLogic= {
     getOneByClient :async (id : string, user_id : string) : Promise<DistributeurModel>=> {
         try {
             //find client of user
-           const response = await axios.get(process.env.URL + `getAccount/${user_id}`) 
-           const user_client = response.data.id_client
+           const user : UtilisateurModel = await models.utilisateur.findByPk(user_id, {
+            attributes: ['id_client']
+          })
            
            //distributeurs du client
            const distributeur = await distributeursService.getByID(id)
-           if(user_client == distributeur.id_client) {
-                return distributeur} else {
-                    return null
-                }
+           if(!distributeur ||user.id_client != distributeur.id_client) {
+                return null
+           } else {
+                return distributeur
+            }
 
         }catch (error) {
-                console.error(error)
-                return null
+                throw error 
             }
     },
 
     getAllByClient :async (user_id : string) : Promise<DistributeurModel[]> => {
         
         try {
-            //find client of user
-           const response = await axios.get(process.env.URL + `getAccount/${user_id}`) 
-           const user_client = response.data.id_client
-
+            const user : UtilisateurModel = await models.utilisateur.findByPk(user_id, {
+                attributes: ['id_client']
+              })
            //distributeurs du client
-           const distributeurs = await distributeursService.getAllByClientID(user_client)
+           const distributeurs = await distributeursService.getAllByClientID(user.id_client)
            return distributeurs
         } catch (error) {
-            console.error(error)
-            return []
+            throw error 
         }
         
     },
@@ -60,13 +59,7 @@ const distributeursLogic= {
        
     },
 
-    updateState :async () => {
-        //states : 
-         //en cours d'installation 
-         //actif 
-         //deconnecté 
-         //hors service 
-    },
+
 
     updateClient :async (id_dist : string, info : any) => {
         const distributeur : DistributeurModel = await distributeursService.getByID(id_dist)
@@ -88,32 +81,35 @@ const distributeursLogic= {
 
 
     update :async (info : any, num_serie : string, user_id? : string) => {
-        let authorized : boolean = true
-        console.log("\n \n \n ", user_id)
+        
         const { date_installation_distributeur, localisation_statique_distributeur, etat_distributeur} = info;
         try {
-            const distributeur = await distributeursService.getByID(num_serie)
+            
+            const distributeur : DistributeurModel = await distributeursService.getByID(num_serie)
+            if(!distributeur) {
+                throw new Error("Distributeur not found")
+            }
+
 
             if(user_id) {
-                const response = await axios.get(process.env.URL + `getAccount/${user_id}`) 
-                const user_client = response.data.id_client
-                if(user_client != distributeur.id_client) {
-                    authorized = false
+                const user : UtilisateurModel = await models.utilisateur.findByPk(user_id, {
+                    attributes: ['id_client']
+                  })
+                  
+                if(user.id_client != distributeur.id_client) {
+                    throw new Error("Distributeur not found")
+                    
                 }
             }
 
-            if(authorized) {
-                return  distributeursService.update(
-                    {   date_installation_distributeur: date_installation_distributeur ?? distributeur.date_installation_distributeur,
-                        localisation_statique_distributeur: localisation_statique_distributeur ?? distributeur.localisation_statique_distributeur,
-                        etat_distributeur: etat_distributeur ?? distributeur.etat_distributeur }, 
-                    distributeur)
-            } else {
-                    return null
-            }
+            return  distributeursService.update(
+                {   date_installation_distributeur: date_installation_distributeur ?? distributeur.date_installation_distributeur,
+                    localisation_statique_distributeur: localisation_statique_distributeur ?? distributeur.localisation_statique_distributeur,
+                    etat_distributeur: etat_distributeur ?? distributeur.etat_distributeur }, 
+                distributeur)
 
         } catch(error : any) {
-            throw new error (`Failed update : Distributeur ${num_serie}`);
+            throw error
         }
     },
 

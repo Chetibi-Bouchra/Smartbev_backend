@@ -6,43 +6,65 @@ import models from "../../../models/sequelize";
 
 const distributeursService = {
     getByID : async(id : string) : Promise<DistributeurModel> => {
-        const distributeur : DistributeurModel = await models.distributeur.findByPk(id)
-       // console.log(`id: ${distributeur.id_distributeur}, serie: ${distributeur.numero_serie_distributeur}`);
-        return distributeur
+        try {
+            const distributeur : DistributeurModel = await models.distributeur.findByPk(id)
+            return distributeur
+        } catch(err) {
+            throw err
+        }
+
     },
 
 
     getAll :async () : Promise<DistributeurModel[]>=> {
-        const distributeurs : DistributeurModel[] = await models.distributeur.findAll()
-        /*distributeurs.forEach(distributeur => {
-            console.log(`id: ${distributeur.id_distributeur}, serie: ${distributeur.numero_serie_distributeur}`);
-          });*/
-        return distributeurs
+        try {
+            const distributeurs : DistributeurModel[] = await models.distributeur.findAll()
+            return distributeurs
+        } catch(err) {
+            throw err
+        }
+
     }, 
 
     getAllByClientID :async (id_client : string) : Promise<DistributeurModel[]> => {
+        try {
             const distributeurs : DistributeurModel[] = await models.distributeur.findAll({where : {id_client : id_client}})
-            
             return distributeurs
+        } catch(err) {
+            throw err
+        }
+
         
     },
 
     add :async (info : any) : Promise<DistributeurModel>=> {
-        const distributeur : DistributeurModel = await models.distributeur.create(info)
-        //log the new distributeur
-        //console.log(`id: ${distributeur.id_distributeur}, serie: ${distributeur.numero_serie_distributeur}`)
-        return distributeur
+        try {
+            const distributeur : DistributeurModel = await models.distributeur.create(info)
+            return distributeur
+        } catch(err) {
+            throw err
+        }
+
         
     }, 
     update : async (info : any, distributeur : DistributeurModel) : Promise<DistributeurModel>=> {
+        try {
+            distributeur = await distributeur.update(info)
+            return distributeur
+        } catch(err) {
+            throw err
+        }
 
-        distributeur = await distributeur.update(info)
-        return distributeur
 
     }, 
 
     delete :  async(distributeur : DistributeurModel) => {
-        await distributeur.destroy();
+        try {
+            await distributeur.destroy();
+        } catch(err) {
+            throw err
+        }
+        
     },
 
     getBoissonsByID :async (id : string) => {

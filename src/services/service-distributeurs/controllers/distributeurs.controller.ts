@@ -2,6 +2,7 @@ import { Request, response, Response } from "express";
 import distributeursService from "../service/distributeurs.service";
 
 import distributeursLogic from "../service/distributeurs.logic";
+import { error } from "console";
 
 
 
@@ -22,7 +23,7 @@ const distributeursController = {
 
             res.status(200).json(distributeurs)
         } catch (err : any){
-            res.status(500).send('Internal server error')
+            res.status(500).send(err.message)
         }
     },
     
@@ -43,9 +44,8 @@ const distributeursController = {
                 res.status(200).json(distributeur)
             }
 
-        } catch (err : any){
-            console.log(err) 
-            res.status(500).send('Internal server error')
+        } catch (err : any){ 
+            res.status(500).send(err.message)
         }
     },
 
@@ -62,9 +62,12 @@ const distributeursController = {
     updateById : async(req : Request, res : Response) => {
         
         try {
+            
             let user_id :string = ""
-            if(req.body.id) {
-                user_id = req.body.id
+            
+            if(req.user) {
+                user_id = req.user.id
+                console.log("hello", user_id)
             }
            const  distributeur = await distributeursLogic.update(req.body, req.params.id, user_id) 
             res.status(201).json(distributeur)

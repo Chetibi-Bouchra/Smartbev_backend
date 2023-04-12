@@ -1,9 +1,6 @@
 import models from '../../models/sequelize';
 import distributeursService from '../../services/service-distributeurs/service/distributeurs.service';
 import distributeursLogic from '../../services/service-distributeurs/service/distributeurs.logic';
-import axios from 'axios';
-import { create } from 'domain';
-import exp from 'constants';
 
 
 describe('Service de gestion de distributeurs', () => {
@@ -37,7 +34,7 @@ describe('Service de gestion de distributeurs', () => {
 
 
             //mock : user
-            spyOn(axios, 'get').and.returnValue(Promise.resolve({ data: { id_client: client } }));
+            spyOn(models.utilisateur, 'findByPk').and.returnValue(Promise.resolve({id_client : client}))
 
             //mock : distributeur
             spyOn(distributeursService, 'getByID').and.returnValue(Promise.resolve(expectedDistributeur));
@@ -47,7 +44,9 @@ describe('Service de gestion de distributeurs', () => {
 
             //Assertions 
             expect(result).toEqual(expectedDistributeur);
-            expect(axios.get).toHaveBeenCalledWith(process.env.URL + `getAccount/${user_id}`);
+            expect(models.utilisateur.findByPk).toHaveBeenCalledWith(user_id, {
+                attributes: ['id_client']
+              })
             expect(distributeursService.getByID).toHaveBeenCalledWith(id);
 
         })
@@ -60,7 +59,8 @@ describe('Service de gestion de distributeurs', () => {
 
 
             //mock : user
-            spyOn(axios, 'get').and.returnValue(Promise.resolve({ data: { id_client: "client24" } }));
+            
+            spyOn(models.utilisateur, 'findByPk').and.returnValue(Promise.resolve({id_client : "client24"}))
 
             //mock : distributeur
             spyOn(distributeursService, 'getByID').and.returnValue(Promise.resolve(expectedDistributeur));
@@ -70,7 +70,9 @@ describe('Service de gestion de distributeurs', () => {
 
             //Assertions 
             expect(result).toEqual(null);
-            expect(axios.get).toHaveBeenCalledWith(process.env.URL + `getAccount/${user_id}`);
+            expect(models.utilisateur.findByPk).toHaveBeenCalledWith(user_id, {
+                attributes: ['id_client']
+              })
             expect(distributeursService.getByID).toHaveBeenCalledWith(id);
         })
 
@@ -80,13 +82,9 @@ describe('Service de gestion de distributeurs', () => {
 
 
     describe("Recuperer la liste des distributeurs", () => {
-        it("Retourne la liste des distributeurs",async () => {
-            
-        })
-
         it("Retourne la liste des distributeurs appartenant au client de l'utilisateur s'il existe",async () => {
             const user_id = 'AM6709';
-            const client = 'client8';
+            const client = '2';
             const expectedDistributeurs = [
                 { id: '1', id_client: client },
                 { id: '2', id_client: client },
@@ -94,13 +92,15 @@ describe('Service de gestion de distributeurs', () => {
               ];
 
             //mocks : 
-            spyOn(axios, 'get').and.returnValue(Promise.resolve({ data: { id_client: client } }));
+            spyOn(models.utilisateur, 'findByPk').and.returnValue(Promise.resolve({id_client : client}))
             spyOn(distributeursService, 'getAllByClientID').and.returnValue(Promise.resolve(expectedDistributeurs));
 
             const result = await distributeursLogic.getAllByClient(user_id);
 
             expect(result).toEqual(expectedDistributeurs)
-            expect(axios.get).toHaveBeenCalledWith(process.env.URL + `getAccount/${user_id}`)
+            expect(models.utilisateur.findByPk).toHaveBeenCalledWith(user_id, {
+                attributes: ['id_client']
+              })
             expect(distributeursService.getAllByClientID).toHaveBeenCalledWith(client);
         })
 
@@ -110,13 +110,15 @@ describe('Service de gestion de distributeurs', () => {
             const client = 'client7';
 
             //mocks : 
-            spyOn(axios, 'get').and.returnValue(Promise.resolve({ data: { id_client: client } }));
+            spyOn(models.utilisateur, 'findByPk').and.returnValue(Promise.resolve({id_client : client}))
             spyOn(distributeursService, 'getAllByClientID').and.returnValue(Promise.resolve([]));
 
             const result = await distributeursLogic.getAllByClient(user_id);
 
             expect(result).toEqual([])
-            expect(axios.get).toHaveBeenCalledWith(process.env.URL + `getAccount/${user_id}`)
+            expect(models.utilisateur.findByPk).toHaveBeenCalledWith(user_id, {
+                attributes: ['id_client']
+              })
             expect(distributeursService.getAllByClientID).toHaveBeenCalledWith(client);
         })
 
@@ -133,7 +135,6 @@ describe('Service de gestion de distributeurs', () => {
                     return Promise.resolve(null)
                 } else {
                     return Promise.resolve({
-                        id_distributeur : info.id_distributeur,
                         numero_serie_distributeur : info.numero_serie_distributeur
                       });
                 }
@@ -149,7 +150,6 @@ describe('Service de gestion de distributeurs', () => {
 
         it("crée un nouveau distributeur et retourne l'objet",async () => {
             const info = {
-                id_distributeur : '-2',
                 numero_serie_distributeur : '1246'
             }
             const result = await distributeursService.add(info)
@@ -227,7 +227,7 @@ describe('Service de gestion de distributeurs', () => {
 
         it("Affecte un Distributeur existant à un client existant sachant que le champs id_client dans distributeur est null et retourne le distributeur",async () => {
             const id_dist : string = '5'
-            const id_client : string = ""
+            let id_client : number = 0
             const distributeur = {id_distributeur : id_dist, numero_serie_distributeur : '3498UR45', id_client : id_client}
 
            spyOn(distributeursService, "getByID").and.returnValue(Promise.resolve(distributeur));
@@ -235,10 +235,10 @@ describe('Service de gestion de distributeurs', () => {
            distributeur.id_client = id_client
            spyOn(distributeursService, "update").and.returnValue(Promise.resolve(distributeur));
 
-           const result = await distributeursLogic.updateClient(id_dist, id_client);
+           const result = await distributeursLogic.updateClient(id_dist, {id_client : id_client});
 
            expect(distributeursService.getByID).toHaveBeenCalledWith(id_dist);
-           expect(distributeursService.update).toHaveBeenCalledWith(id_client, distributeur);
+           expect(distributeursService.update).toHaveBeenCalledWith({id_client : id_client}, distributeur);
            expect(result).toEqual(distributeur);
             
 
