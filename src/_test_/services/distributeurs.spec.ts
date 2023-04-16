@@ -6,31 +6,22 @@ import distributeursLogic from '../../services/service-distributeurs/service/dis
 describe('Service de gestion de distributeurs', () => {
 
     describe("Recuperer un distributeur par son identifiant", () => {
-        it("Retourne un objet distributeur quand elle reçoit un identifiant valide", async () => {
-            const id = '1'
-            const expectedDistributeur = {id_distributeur : id, numero_serie_distributeur : '3498UR45'}
+        it("Retourne un objet distributeur quand elle reçoit un identifiant", async () => {
+            const num_serie = '1RE45'
+            const expectedDistributeur = {numero_serie_distributeur : num_serie}
             const findByPkSpy = spyOn(models.distributeur, 'findByPk').and.returnValue(expectedDistributeur)
 
-            const result = await distributeursService.getByID(id)
-            expect(findByPkSpy).toHaveBeenCalledWith(id)
+            const result = await distributeursService.getByID(num_serie)
+            expect(findByPkSpy).toHaveBeenCalledWith(num_serie)
             expect(result).toEqual(expectedDistributeur)
         });
 
-        it("Retourne null si l'identifiant n'est pas valide", async () => {
-            const id = '-6'
-            const findByPkSpy = spyOn(models.distributeur, 'findByPk').and.returnValue(null)
-
-            const result = await distributeursService.getByID(id)
-            expect(findByPkSpy).toHaveBeenCalledWith(id)
-            expect(result).toEqual(null)
-        })
-
         it("Retourne un distributeur si seulement s'il appartient au client de l'utilisateur",async () => {
-            const id = '1';
+            const num_serie = '1RE45ER';
             const user_id = 'AM6709';
             const client = 'client8';
 
-            const expectedDistributeur = {id_distributeur : id, numero_serie_distributeur : '3498UR45', id_client : client}
+            const expectedDistributeur = {numero_serie_distributeur : num_serie, id_client : client}
 
 
             //mock : user
@@ -40,40 +31,38 @@ describe('Service de gestion de distributeurs', () => {
             spyOn(distributeursService, 'getByID').and.returnValue(Promise.resolve(expectedDistributeur));
 
             //Appel de la méthode à tester
-            const result = await distributeursLogic.getOneByClient(id, user_id);
+            const result = await distributeursLogic.getOneByClient(num_serie, user_id);
 
             //Assertions 
             expect(result).toEqual(expectedDistributeur);
             expect(models.utilisateur.findByPk).toHaveBeenCalledWith(user_id, {
                 attributes: ['id_client']
               })
-            expect(distributeursService.getByID).toHaveBeenCalledWith(id);
+            expect(distributeursService.getByID).toHaveBeenCalledWith(num_serie);
 
         })
 
         it("Retourne null si le distributeur n'appartient pas au même client que l'utilisateur",async () => {
-            const id = '1';
+            const num_serie = '1RE45ER';
             const user_id = 'AM6709';
 
-            const expectedDistributeur = {id_distributeur : id, numero_serie_distributeur : '3498UR45', id_client : "client6"}
+            const expectedDistributeur = {numero_serie_distributeur : num_serie, id_client : "client6"}
 
-
-            //mock : user
-            
+            //mock : use
             spyOn(models.utilisateur, 'findByPk').and.returnValue(Promise.resolve({id_client : "client24"}))
 
             //mock : distributeur
             spyOn(distributeursService, 'getByID').and.returnValue(Promise.resolve(expectedDistributeur));
 
             //Appel de la méthode à tester
-            const result = await distributeursLogic.getOneByClient(id, user_id);
+            const result = await distributeursLogic.getOneByClient(num_serie, user_id);
 
             //Assertions 
             expect(result).toEqual(null);
             expect(models.utilisateur.findByPk).toHaveBeenCalledWith(user_id, {
                 attributes: ['id_client']
               })
-            expect(distributeursService.getByID).toHaveBeenCalledWith(id);
+            expect(distributeursService.getByID).toHaveBeenCalledWith(num_serie);
         })
 
     }) 
@@ -161,7 +150,6 @@ describe('Service de gestion de distributeurs', () => {
         
         it("retourne null si le numero de serie est déjà utilisé",async () => {
             const info = {
-                id_distributeur : '-8',
                 numero_serie_distributeur : '1245'
             }
             const result = await distributeursService.add(info)
@@ -173,7 +161,6 @@ describe('Service de gestion de distributeurs', () => {
 
         it("retourne null si aucun numero de serie est fourni",async () => {
              const info = {
-                id_distributeur : '-8',
                 numero_serie_distributeur : ''
             }
             const result = await distributeursService.add(info)
@@ -189,35 +176,35 @@ describe('Service de gestion de distributeurs', () => {
 
 
         it("Supprime un distributeur s'il exist - method : distributeurLogic.Delete",async () => {
-            const id : string = '5'
+            const num_serie : string = "12FR45"
 
-            const distributeur = {id_distributeur : id, numero_serie_distributeur : '3498UR45', id_client : ""}
+            const distributeur = {numero_serie_distributeur : num_serie, id_client : ""}
 
             spyOn(distributeursService, 'getByID').and.returnValue(Promise.resolve(distributeur));
             spyOn(distributeursService, 'delete').and.returnValue(Promise.resolve());
 
-            await distributeursLogic.delete(id);
+            await distributeursLogic.delete(num_serie);
             
-            expect(distributeursService.getByID).toHaveBeenCalledWith(id);
+            expect(distributeursService.getByID).toHaveBeenCalledWith(num_serie);
             expect(distributeursService.delete).toHaveBeenCalledWith(distributeur);
         })
 
         it("Lance une erreur si le distributeur n'existe pas- method : distributeurLogic.Delete",async () => {
 
-            const id : string = "-5"
+            const num_serie : string = "12FR45"
             spyOn(distributeursService, 'getByID').and.returnValue(Promise.resolve(null))
 
-            await expectAsync(distributeursLogic.delete(id)).toBeRejectedWithError(`Distributeur with id ${id} does not exist.`)
+            await expectAsync(distributeursLogic.delete(num_serie)).toBeRejectedWithError(`Distributeur with id ${num_serie} does not exist.`)
             
         })
 
         it("Lance une erreur si le distributeur est déjà affecté à un client - method : distributeurLogic.Delete",async () => {
-            const id : string = '5'
+            const num_serie : string = "12FR45"
 
-            const distributeur = {id_distributeur : id, numero_serie_distributeur : '3498UR45', id_client : "client_34"}
+            const distributeur = {numero_serie_distributeur : num_serie, id_client : "client_34"}
 
             spyOn(distributeursService, "getByID").and.returnValue(Promise.resolve(distributeur))
-            await expectAsync(distributeursLogic.delete(id)).toBeRejectedWithError(`Failed deletion : Distributeur ${id} already belongs to a client`);
+            await expectAsync(distributeursLogic.delete(num_serie)).toBeRejectedWithError(`Failed deletion : Distributeur ${num_serie} already belongs to a client`);
         })
 
     })
@@ -226,18 +213,18 @@ describe('Service de gestion de distributeurs', () => {
     describe("Affecter un distributeur à un client", ()=> {
 
         it("Affecte un Distributeur existant à un client existant sachant que le champs id_client dans distributeur est null et retourne le distributeur",async () => {
-            const id_dist : string = '5'
+            const num_serie : string = '3498UR45'
             let id_client : number = 0
-            const distributeur = {id_distributeur : id_dist, numero_serie_distributeur : '3498UR45', id_client : id_client}
+            const distributeur = {numero_serie_distributeur : num_serie, id_client : id_client}
 
            spyOn(distributeursService, "getByID").and.returnValue(Promise.resolve(distributeur));
 
            distributeur.id_client = id_client
            spyOn(distributeursService, "update").and.returnValue(Promise.resolve(distributeur));
 
-           const result = await distributeursLogic.updateClient(id_dist, {id_client : id_client});
+           const result = await distributeursLogic.updateClient(num_serie, {id_client : id_client});
 
-           expect(distributeursService.getByID).toHaveBeenCalledWith(id_dist);
+           expect(distributeursService.getByID).toHaveBeenCalledWith(num_serie);
            expect(distributeursService.update).toHaveBeenCalledWith({id_client : id_client}, distributeur);
            expect(result).toEqual(distributeur);
             
@@ -245,30 +232,30 @@ describe('Service de gestion de distributeurs', () => {
         }),
 
         it("Lance une error si le distributeur est déjà affecté à un client",async () => {
-            const id_dist : string = '5'
+            const num_serie : string = '3498UR45'
             const id_client : string = "client567"
-            const distributeur = {id_distributeur : id_dist, numero_serie_distributeur : '3498UR45', id_client : id_client}
+            const distributeur = {numero_serie_distributeur : num_serie, id_client : id_client}
 
            spyOn(distributeursService, "getByID").and.returnValue(Promise.resolve(distributeur));
 
            
-           await expectAsync(distributeursLogic.updateClient(id_dist, id_client)).toBeRejectedWithError(`Distributeur ${id_dist} already belongs to a client ${id_client}`);
+           await expectAsync(distributeursLogic.updateClient(num_serie, id_client)).toBeRejectedWithError(`Distributeur ${num_serie} already belongs to a client ${id_client}`);
 
-           expect(distributeursService.getByID).toHaveBeenCalledWith(id_dist);
+           expect(distributeursService.getByID).toHaveBeenCalledWith(num_serie);
 
         }),
 
 
         it("Lance une error s'il y a un problème avec la m à j de la bdd",async () => {
-            const id_dist : string = '5'
+            const num_serie : string = '3498UR45'
             const id_client : string = 'client67'
-            const distributeur = {id_distributeur : id_dist, numero_serie_distributeur : '3498UR45', id_client : null}
+            const distributeur = {numero_serie_distributeur : num_serie, id_client : null}
             
             spyOn(distributeursService, "getByID").and.returnValue(Promise.resolve(distributeur));
 
             spyOn(distributeursService, "update").and.returnValue(Promise.reject(new Error("Error during update")));
 
-            await expectAsync(distributeursLogic.updateClient(id_dist, id_client)).toBeRejectedWithError(`Error during update`);
+            await expectAsync(distributeursLogic.updateClient(num_serie, id_client)).toBeRejectedWithError(`Error during update`);
         })
 
     })
