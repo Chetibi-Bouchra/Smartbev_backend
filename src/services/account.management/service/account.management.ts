@@ -82,6 +82,12 @@ class AccountManagmentService {
    */
 
 	static async modifyAccount(id: string, body: any, role: string, modifierRole: string) {
+		//console.log("this is the id from modifyAccount service");
+		//console.log(id);
+		//console.log(role);
+		//console.log("/////////////////////////");
+		//console.log("here is the BODY");
+		//console.log(body);
 
 		let accountModel = Models.utilisateur;
 
@@ -111,8 +117,11 @@ class AccountManagmentService {
 			
 
 		} else if(modifierRole ===  'AM') {
+			//console.log("A l'intérieur de modifierRole");
 
 			if (role === 'AM') {
+
+				//console.log("A l'intérieur de role");
 
 				accountModel = Models.utilisateur;
 				let account = await accountModel.findOne({ where: { id_utilisateur:id } });
@@ -122,6 +131,8 @@ class AccountManagmentService {
 				}
 
 				 // Hash the password before updating the account in the database
+				 console.log("found one");
+				 console.log(account);
 				 if (body.password_utilisateur) {
 					const hashedPassword = await bcrypt.hash(body.password_utilisateur, 10);
 					body.password_utilisateur = hashedPassword;
@@ -130,7 +141,24 @@ class AccountManagmentService {
 				let updatedUser = { ...account.toJSON(), ...body };
 				// Save changes to database
 				await account.update(updatedUser);
-                return account.toJSON();
+
+				//Added this code for profil
+                
+				// Update profil table
+				let profil = await Models.profil.findOne({ where: { id_utilisateur: id } });
+				console.log("*************************");
+				console.log("here is the profile");
+				console.log(profil);
+				if (!profil) {
+				  throw new Error(`Profil with id_utilisateur ${id} not found`);
+				}
+				let updatedProfil = { ...profil.toJSON(), ...body };
+				await profil.update(updatedProfil);
+		  
+				return {
+				  utilisateur: account.toJSON(),
+				  profil: profil.toJSON()
+				};
 
 			} else {
 				throw new Error(`You are not authorized to modify this account`);

@@ -3,7 +3,7 @@ import  { Sequelize } from 'sequelize';
 
 const sequelize = new Sequelize({
 	dialect: 'mysql',
-	database: 'smartbev2',
+	database: 'smartbev4',
 	username: 'root',
 	password: '',
 });

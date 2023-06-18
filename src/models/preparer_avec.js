@@ -1,26 +1,23 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('wilaya', {
-    id_wilaya: {
+  return sequelize.define('preparer_avec', {
+    id_boisson: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    numero_wilaya: {
+    id_ingredient: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      primaryKey: true
     },
-    nom_wilaya: {
-      type: DataTypes.STRING(50),
-      allowNull: false
-    },
-    id_pays: {
-      type: DataTypes.INTEGER,
-      allowNull: false
+    quantite_preparation: {
+      type: DataTypes.DOUBLE,
+      allowNull: true
     }
   }, {
     sequelize,
-    tableName: 'wilaya',
+    tableName: 'preparer_avec',
     timestamps: false,
     indexes: [
       {
@@ -28,14 +25,15 @@ module.exports = function(sequelize, DataTypes) {
         unique: true,
         using: "BTREE",
         fields: [
-          { name: "id_wilaya" },
+          { name: "id_boisson" },
+          { name: "id_ingredient" },
         ]
       },
       {
-        name: "id_pays",
+        name: "id_ingredient",
         using: "BTREE",
         fields: [
-          { name: "id_pays" },
+          { name: "id_ingredient" },
         ]
       },
     ]

@@ -1,26 +1,26 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('wilaya', {
-    id_wilaya: {
+  return sequelize.define('region_dynamique', {
+    id_region_dynamique: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    numero_wilaya: {
-      type: DataTypes.INTEGER,
+    centre_y: {
+      type: DataTypes.DOUBLE,
       allowNull: false
     },
-    nom_wilaya: {
-      type: DataTypes.STRING(50),
+    diametre: {
+      type: DataTypes.DOUBLE,
       allowNull: false
     },
-    id_pays: {
-      type: DataTypes.INTEGER,
+    centre_x: {
+      type: DataTypes.DOUBLE,
       allowNull: false
     }
   }, {
     sequelize,
-    tableName: 'wilaya',
+    tableName: 'region_dynamique',
     timestamps: false,
     indexes: [
       {
@@ -28,14 +28,7 @@ module.exports = function(sequelize, DataTypes) {
         unique: true,
         using: "BTREE",
         fields: [
-          { name: "id_wilaya" },
-        ]
-      },
-      {
-        name: "id_pays",
-        using: "BTREE",
-        fields: [
-          { name: "id_pays" },
+          { name: "id_region_dynamique" },
         ]
       },
     ]

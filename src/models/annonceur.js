@@ -1,26 +1,38 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('wilaya', {
-    id_wilaya: {
+  return sequelize.define('annonceur', {
+    id_annonceur: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    numero_wilaya: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    nom_wilaya: {
+    nom_annonceur: {
       type: DataTypes.STRING(50),
       allowNull: false
     },
-    id_pays: {
+    type_annonceur: {
+      type: DataTypes.STRING(50),
+      allowNull: false
+    },
+    telephone_annonceur: {
+      type: DataTypes.STRING(50),
+      allowNull: true
+    },
+    fiscal_annonceur: {
+      type: DataTypes.STRING(50),
+      allowNull: true
+    },
+    rcf_annonceur: {
+      type: DataTypes.STRING(50),
+      allowNull: true
+    },
+    id_client: {
       type: DataTypes.INTEGER,
       allowNull: false
     }
   }, {
     sequelize,
-    tableName: 'wilaya',
+    tableName: 'annonceur',
     timestamps: false,
     indexes: [
       {
@@ -28,14 +40,14 @@ module.exports = function(sequelize, DataTypes) {
         unique: true,
         using: "BTREE",
         fields: [
-          { name: "id_wilaya" },
+          { name: "id_annonceur" },
         ]
       },
       {
-        name: "id_pays",
+        name: "id_client",
         using: "BTREE",
         fields: [
-          { name: "id_pays" },
+          { name: "id_client" },
         ]
       },
     ]

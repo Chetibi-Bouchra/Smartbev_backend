@@ -64,9 +64,15 @@ const modifyAccount = async (req: Request, res: Response) => {
 	try {
 
 		//const modifierId = req.user.id;
-		const modifierRole = req.user.role;
-
-		const { id,role } = req.params;
+		
+		const modifierRole = req.params.role;
+		//console.log("*************************");
+		//console.log("these are the PARAMS");
+		//console.log(req.params);
+		const id = req.params.id;
+		const role = req.params.role;
+	
+		//const { id,role } = req.params;
 		// call the controller function to modify the commercial account
 		const result = await AccountManagmentService.modifyAccount(id, req.body,role,modifierRole);
 		// send the response back to the client
@@ -101,7 +107,7 @@ const getAccounts = async (req: Request, res: Response) => {
 
 const getProfil = async (req: Request, res: Response) => {
 	try {
-		const id = req.user.id;
+		const id = "12";
 		const account = await AccountManagmentService.getProfile(id);
 		res.status(200).json({ success: true, data: account });
 	} catch (err:any) {

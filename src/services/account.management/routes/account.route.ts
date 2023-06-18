@@ -33,7 +33,7 @@ router.delete('/deleteAccount/:role/:id',Authorization(['ADM','SADM']), deleteAc
 @desc Modify a Account by id
 @access Admin
 */
-router.put('/modifyAccount/:role/:id',Authorization(['ADM','AC','AM','decideur']), modifyAccount);
+router.put('/modifyAccount/:role/:id', modifyAccount);
 
 
 /**
@@ -41,7 +41,7 @@ router.put('/modifyAccount/:role/:id',Authorization(['ADM','AC','AM','decideur']
 @route POST api/getProfil
 @desc get profil
 */
-router.get('/getProfil/',Authorization(['SADM','ADM','AC','AM','decideur']),getProfil);
+router.get('/getProfil/',getProfil);
 
 /**
 @route POST api/createClientAccount
